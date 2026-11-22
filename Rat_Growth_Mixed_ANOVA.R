@@ -137,3 +137,36 @@ holm_time <- rats %>%
     p.adjust.method = "holm"
   )
 print(holm_time, n = Inf)
+## Post Hoc Analysis and Decomposition of Interaction
+
+```{r post-hoc-analysis}
+# 1. Simple main effect of treatment at each time point
+simple_trt <- rats %>%
+  group_by(time) %>%
+  anova_test(dv = y, wid = id, between = trt) %>%
+  get_anova_table()
+print(simple_trt)
+
+# 2. Pairwise comparisons between treatments within each time point (Tukey HSD)
+tukey_trt <- rats %>%
+  group_by(time) %>%
+  tukey_hsd(y ~ trt)
+print(tukey_trt, n = Inf)
+
+# 3. Simple main effect of time within each treatment group
+simple_time <- rats %>%
+  group_by(trt) %>%
+  anova_test(dv = y, wid = id, within = time) %>%
+  get_anova_table()
+print(simple_time)
+
+# 4. Pairwise comparisons across time within each treatment (paired t-test, Holm)
+holm_time <- rats %>%
+  group_by(trt) %>%
+  pairwise_t_test(
+    y ~ time,
+    paired = TRUE,
+    p.adjust.method = "holm"
+  )
+print(holm_time, n = Inf)
+```
